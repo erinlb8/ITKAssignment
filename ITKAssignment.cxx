@@ -16,15 +16,18 @@
 const unsigned int nDims = 3 ;
 typedef itk::Image < float, nDims > ImageType ;
 typedef itk::ImageFileReader < ImageType > ReaderType ;
-
+typedef itk::AddImageFilter < ImageType, ImageType, ImageType > AddType ;
+ 
 ImageType::Pointer affineRegistration( std::string, std::string, std::string );
 
+/*
 ImageType::Pointer affReg( ImageType::Pointer imgTotal, std::string inMoving, std::string outFile ) {
     adder2->SetInput1( imgTotal ) ;
     adder2->SetInput2( affineRegistration( randSub, inMoving, outFile ) ;
     adder2->Update() ;
     return  adder2->GetOutput() ;
 }
+*/
 
 ImageType::Pointer LoadImage ( std::string inputFile ) {    
     ReaderType::Pointer reader = ReaderType::New() ;
@@ -37,7 +40,7 @@ ImageType::Pointer LoadImage ( std::string inputFile ) {
 int main ( int argc, char * argv[] )
 {
     // Verify command line arguments
-    if (argc < 3 ) {
+    if (argc < 2 ) {
 	std::cerr << "Usage: " << std::endl ;
 	std::cerr << argv[0] << "inputImageFile inputFixedImageFile outputImageFile" << std::endl ;
 	return -1 ;
@@ -51,11 +54,11 @@ int main ( int argc, char * argv[] )
     int c = 0 ;
   
     getline(f, line) ;
-    std::string ln2 = "./itk-images/" + line ;
-    files[c] = ln2 ;
-    c++;
 */
-    typedef itk::AddImageFilter < ImageType, ImageType, ImageType > AddType ;
+    //std::string ln2 = "./itk-images/" + std::string( argv[1] ) ;
+    //files[c] = ln2 ;
+    //c++;
+
     AddType::Pointer adder = AddType::New() ;
 
     ImageType::Pointer imgTotal = LoadImage( argv[1] ) ;
@@ -76,31 +79,34 @@ int main ( int argc, char * argv[] )
     AddType::Pointer adder2 = AddType::New() ;
  
     // std::cout << files[r] << std::endl ;
-    ImageType::Pointer randSub = LoadImage( argv[2] ) ;
+    std::string fixedImage = "./itk-images/KKI2009-01-MPRAGE.nii" ;
+    ImageType::Pointer randSub = LoadImage( fixedImage ) ;
     imgTotal = randSub ;
 
+    // const char * filePrefix = "./registrations/AR-" ;
+    // char * fSuffix = ".gz" ;
     // std::thread t[21] ;
 
 //    for (int i = 0; i < 21; i++ ) {
 //	if (i != r ) {
-	    std::string outFile = "./registrations/AffineRegistration-" + argv[1].substr(8,2) + ".nii.gz" ;
+    	    std::string outFile = "./registrations/AR-" + std::string( argv[1] ).substr( 19, 2 ) + ".nii.gz" ;
 	    //t[i] = std::thread(affReg, randSub, files[i], outFile ) ;
-	    affReg(randSub, "./itk-images/" + argv[1], outFile ) ;
-	    std::cout << outFile << std::endl ;
+	    ImageType::Pointer afr = affineRegistration( fixedImage, argv[1], outFile ) ;
+	    
 // 	}
 //    }
 /*
     for (int i=0; i<21; i++ ) {
 	t[i].join()
     }
-*?
+
 
     typedef itk::ImageFileWriter < ImageType > WriterType ;
     WriterType::Pointer writer = WriterType::New() ;
-    writer->SetFileName( argv[2] ) ;
-    writer->SetInput( adder->GetOutput() ) ;
+    writer->SetFileName( argv[3] ) ;
+    writer->SetInput( afr ) ;
     writer->Update() ;
-
+*/
     return 0 ;
 }
 
