@@ -29,7 +29,6 @@ public:
 
   void Execute(const itk::Object *caller, const itk::EventObject &event) {
     OptimizerPointerType optimizer = dynamic_cast < OptimizerPointerType > ( caller ) ;
-    // std::cout << optimizer->GetCurrentIteration() << " " << optimizer->GetValue() << std::endl ;
   }
 
 protected:
@@ -74,11 +73,7 @@ protected:
   
 };
 
-<<<<<<< HEAD
 void affineRegistration(std::string inFixed, std::string inMoving, std::string outImage )
-=======
-ImageType::Pointer affineRegistration(std::string inFixed, std::string inMoving, std::string outImage )
->>>>>>> 7ee0c728c26cdc44873264d56a3ad55425ce0376
 {
   // Verify command line arguments
 
@@ -91,19 +86,11 @@ ImageType::Pointer affineRegistration(std::string inFixed, std::string inMoving,
   ImageType::Pointer movingImage = reader->GetOutput() ;
 
   // Same for the fixed image
-<<<<<<< HEAD
-  
-=======
->>>>>>> 7ee0c728c26cdc44873264d56a3ad55425ce0376
   readerType::Pointer reader2 = readerType::New() ;
   reader2->SetFileName ( inFixed ) ;
   reader2->Update() ;
   ImageType::Pointer fixedImage = reader2->GetOutput() ;
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 7ee0c728c26cdc44873264d56a3ad55425ce0376
   // Register images
   // Set up typedefs
   typedef itk::AffineTransform < double, 3 > AffineType ;
@@ -171,9 +158,5 @@ ImageType::Pointer affineRegistration(std::string inFixed, std::string inMoving,
   writer->Update() ;
 
   // Done.
-<<<<<<< HEAD
   return ;
-=======
-  return filter->GetOutput() ;
->>>>>>> 7ee0c728c26cdc44873264d56a3ad55425ce0376
 }
