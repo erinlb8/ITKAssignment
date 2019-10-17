@@ -23,15 +23,16 @@ typedef itk::MultiplyImageFilter < ImageType, ImageType, ImageType > MultiplyTyp
 typedef itk::AddImageFilter < ImageType, ImageType, ImageType > AddType ;
 typedef itk::ImageFileWriter < ImageType > WriterType ;  
 
+using namespace std ;
 
-ImageType::Pointer LoadImage ( std::string inputFile ) {    
+ImageType::Pointer LoadImage ( string inputFile ) {    
     ReaderType::Pointer reader = ReaderType::New() ;
     reader->SetFileName( inputFile ) ;
     reader->Update() ;
     return reader->GetOutput() ;
 }
 
-int averageImage( std::vector < std::string > files, std::string outFile ) {
+int averageImage( vector < string > files, string outFile ) {
     AddType::Pointer adder = AddType::New() ;
     ImageType::Pointer imgTotal = LoadImage( files[0] ) ;
         
@@ -40,7 +41,7 @@ int averageImage( std::vector < std::string > files, std::string outFile ) {
 	adder->SetInput2( LoadImage( files[i] ) );
 	adder->Update() ;
 	imgTotal = adder->GetOutput() ;
-	std::cout << files[i] << std::endl ;
+	cout << files[i] << endl ;
     }
 
     MultiplyType::Pointer multi = MultiplyType::New() ;
@@ -61,12 +62,12 @@ int main ( int argc, char * argv[] )
 {
     // Verify command line arguments
     if (argc < 1 ) {
-	std::cerr << "Usage: " << std::endl ;
-	std::cerr << argv[0] << "inputImagesList outputImageFile methodChoice" << std::endl ;
+	cerr << "Usage: " << endl ;
+	cerr << argv[0] << "inputImagesList outputImageFile methodChoice" << endl ;
 	return -1 ;
     }
 
-    std::vector < std::string > files ;
+    vector < string > files ;
     DIR* dirp = opendir( "./itk-images/" ) ;
     struct dirent * dp ;
     while( ( dp = readdir( dirp ) ) != NULL ) {
@@ -77,46 +78,50 @@ int main ( int argc, char * argv[] )
     closedir( dirp ) ;
     
     for ( int j = 0 ; j < files.size() ; j++ ) {
-	std::cout << files[j] << std::endl ;
+	cout << files[j] << endl ;
 	files[j] = "./itk-images/" + files[j] ;	
     }
 
 
 
 
-    std::string regArray[ files.size() ] ;
-    std::string defArray[ files.size() ] ;
+    string regArray[ files.size() ] ;
+    string defArray[ files.size() ] ;
     regArray[0] = files[0] ;
     defArray[0] = "./registrations/DR-" + files[0].substr( 21, 2 ) + ".nii.gz" ;
 
     for ( int i = 1 ; i < files.size() ; i++ ) {
  	regArray[i] = "./registrations/AR-" + files[i].substr( 21, 2 ) + ".nii.gz" ;
         defArray[i] = "./registrations/DR-" + files[i].substr( 21, 2 ) + ".nii.gz" ;
-	std::cout << regArray[i] << std::endl ;
-	std::cout << defArray[i] << std::endl ;
+	cout << regArray[i] << endl ;
+	cout << defArray[i] << endl ;
     }
 
 //    if ( strcmp( argv[3], "1" ) == 0 ) {
-        std::cout << "Method 1" << std::endl ;
+        cout << "Method 1" << endl ;
 	averageImage( files, "initialAverage.nii.gz" ) ;
 /*    } 
     else if ( strcmp( argv[3], "2" ) == 0 ) {
-	std::cout << "Method 2" << std::endl ;
+	cout << "Method 2" << endl ;
 	for (int i = 1; i < 21; i++ ) {
 	    affineRegistration( files[0], files[i], regArray[i] ) ;
-	    std::cout << regArray[i] << std::endl ;
+	    cout << regArray[i] << endl ;
 	}
     }
     else if ( strcmp( argv[3], "3" ) == 0 ) {
-	std::cout << "Method 3" << std::endl ;
-	averageImage( regArray, argv[2] ) ;
+	cout << "Method 3" << endl ;
+	averageImage( regArray, "affineAverage.nii.gz" ) ;
     }
     else if ( strcmp( argv[3], "4" ) == 0 ) {
-	std::cout << "Method 4" << std::endl ;
+	cout << "Method 4" << endl ;
         for (int i = 0; i < 21 ; i++ ) {
-	    deformableRegistration( "test6.nii.gz", regArray[0], defArray[0] ) ; 
-	    std::cout << defArray[i] << std::endl ;
+	    deformableRegistration( "affineAverage.nii.gz", regArray[0], defArray[0] ) ; 
+	    cout << defArray[i] << endl ;
 	}
+    } 
+    else if ( strcmp( argv[3], "5" ) == 0 ) {
+	cout << "Method 5" << endl ;
+	averageImage( defArray, "deformableAverage.nii.gz" ) ;
     }
 */
     return 0 ;
