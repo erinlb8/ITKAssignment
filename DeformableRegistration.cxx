@@ -1,8 +1,13 @@
 #include "itkImage.h"
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
-#include "itkDemonsRegistrationFilter.h"
-#include "itkPDEDeformableRegistrationFilter.h"
+#include "itkBSplineTransform.h"
+#include "itkResampleImageFilter.h"
+#include "itkImageRegistrationMethod.h"
+#include "itkMeanSquaresImageToImageMetric.h"
+#include "itkRegularStepGradientDescentOptimizer.h"
+#include "itkLinearInterpolateImageFunction.h"
+#include "itkResampleImageFilter.h"
 
 #include <string>
 
@@ -25,31 +30,75 @@ int deformableRegistration( std::string inFixed, std::string inMoving, std::stri
   reader2->Update() ;
   ImageType::Pointer moving = reader2->GetOutput() ;
 
-  typedef itk::DemonsRegistrationFilter < ImageType, ImageType, ImageType > DemonsType ;
-  typedef itk::PDEDeformableRegistrationFilter < ImageType, ImageType, ImageType > RegistrationType ;
+  typedef itk::BSplineTransform < double, nDims, 3 > BSplineType ;
+  typedef itk::MeanSquaresImageToImageMetric < ImageType, ImageType > MetricType ;
+  typedef itk::RegularStepGradientDescentOptimizer OptimizerType ;
+  typedef itk::ImageRegistrationMethod < ImageType, ImageType > RegistrationType ;
+  typedef itk::LinearInterpolateImageFunction < ImageType, double > InterpolatorType ;
+  
+  BSplineType::Pointer transform = BSplineType::New() ;
+  RegistrationType::Pointer registration = RegistrationType::New() ;
+  MetricType::Pointer meanSquares = MetricType::New() ;
+  OptimizerType::Pointer rsgd = OptimizerType::New() ;
+  InterpolatorType::Pointer linear = InterpolatorType::New() ;
 
-  // DemonsType::Pointer demons = DemonsType::New() ;
-  RegistrationType pdeDeform = RegistrationType::New() ;
-
-
-  //demons->SetFixedImage( fixed ) ;
-  //demons->SetMovingImage( moving ) ;
-  //demons->SetNumberOfIterations( 100 ) ;
-  // demons->SetStandardDeviations( 1.0 ) ;
-/*
-  try {
-    demons->Update() ;
-  } 
-  catch (itk::ExceptionObject & exct ) {
-    std::cerr << exct << std::endl ;
-    return -1 ;
+  transform->SetIdentity() ;
+  
+  BSplineType::PhysicalDimensionsType fixedPD ;  
+  BSplineType::MeshSizeType meshSize ;
+  for ( int i = 0 ; i < nDims ; i++ ) { 
+    fixedPD[i] = fixed->GetSpacing()[i] * static_cast<double>(fixed->GetLargestPossibleRegion().GetSize()[i] - 1) ;
   }
-*/
-  //typedef itk::ImageFileWriter < ImageType > WriterType ;
-  //WriterType::Pointer writer = WriterType::New() ;
-  //writer->SetFileName( outImage ) ;
-  //writer->SetInput( demons->GetOutput() ) ;
-  //writer->Update() ;
+
+  meshSize.Fill( 5 ) ;
+  
+  registration->SetMovingImage( moving ) ;
+  registration->SetFixedImage( fixed ) ;
+  registration->SetMetric( meanSquares ) ;
+  registration->SetOptimizer( rsgd ) ;
+  registration->SetInterpolator( linear ) ;
+  registration->SetTransform( transform ) ;
+  // registration->InPlaceOn() ;
+
+  transform->SetTransformDomainOrigin( fixed->GetOrigin() ) ;
+  transform->SetTransformDomainPhysicalDimensions( fixedPD ) ;
+  transform->SetTransformDomainDirection( fixed->GetDirection() ) ;
+  transform->SetTransformDomainMeshSize( meshSize ) ;
+
+  BSplineType::ParametersType parameters( transform->GetNumberOfParameters() ) ;
+  
+  parameters.Fill( 0.0 ) ;
+  transform->SetParameters( parameters ) ;
+  registration->SetInitialTransformParameters( transform->GetParameters() ) ;
+  registration->SetFixedImageRegion( fixed->GetLargestPossibleRegion() ) ;
+
+  rsgd->SetMaximumStepLength( 0.25 ) ;
+  rsgd->SetMinimumStepLength( 0.0625 ) ;
+  rsgd->SetNumberOfIterations( 200 ) ;
+
+  try { 
+    std::cout << transform->GetNumberOfParameters() << std::endl ;
+    registration->Update() ;
+  } catch (itk::ExceptionObject & e ) {
+    std::cerr << e << std::endl ;
+  }
+
+  transform->SetParameters( registration->GetLastTransformParameters() ) ;
+  typedef itk::ResampleImageFilter < ImageType, ImageType > ResampleType ;
+  ResampleType::Pointer resample = ResampleType::New() ;
+  resample->SetInput( moving ) ;
+  resample->SetTransform( transform ) ;
+  resample->SetSize( moving->GetLargestPossibleRegion().GetSize() ) ;
+  resample->SetReferenceImage( fixed ) ;
+  resample->UseReferenceImageOn() ;
+  resample->Update() ;
+
+
+  typedef itk::ImageFileWriter < ImageType > WriterType ;
+  WriterType::Pointer writer = WriterType::New() ;
+  writer->SetFileName( outImage ) ;
+  writer->SetInput( resample->GetOutput() ) ;
+  writer->Update() ;
 
   return 0;
 }
