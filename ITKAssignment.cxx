@@ -10,14 +10,14 @@
 
 
 // Set up types
+void affineRegistration( std::string, std::string, std::string );
+
 const unsigned int nDims = 3 ;
 typedef itk::Image < double, nDims > ImageType ;
 typedef itk::ImageFileReader < ImageType > ReaderType ;
 typedef itk::MultiplyImageFilter < ImageType, ImageType, ImageType > MultiplyType ;
 typedef itk::AddImageFilter < ImageType, ImageType, ImageType > AddType ;
- 
- 
-ImageType::Pointer affineRegistration( std::string, std::string, std::string );
+  
 
 ImageType::Pointer LoadImage ( std::string inputFile ) {    
     ReaderType::Pointer reader = ReaderType::New() ;
@@ -26,9 +26,9 @@ ImageType::Pointer LoadImage ( std::string inputFile ) {
     return reader->GetOutput() ;
 }
 
+
 ImageType::Pointer averageImage( std::string files[] ) {
     AddType::Pointer adder = AddType::New() ;
-
     ImageType::Pointer imgTotal = LoadImage( files[0] ) ;
         
     for ( int i = 1 ; i < 21 ; i++ ) {
@@ -36,6 +36,7 @@ ImageType::Pointer averageImage( std::string files[] ) {
 	adder->SetInput2( LoadImage( files[i] ) );
 	adder->Update() ;
 	imgTotal = adder->GetOutput() ;
+	std::cout << files[i] << std::endl ;
     }
 
     MultiplyType::Pointer multi = MultiplyType::New() ;
@@ -65,37 +66,42 @@ int main ( int argc, char * argv[] )
     while( getline(f, line) ) {
 	ln2 = "./itk-images/" + line ;
 	files[c] = ln2 ;
+	// std::cout << files[c] << std::endl ;
 	c++ ;
     }
-    
 
-    //AddType::Pointer adder2 = AddType::New() ;
- 
-    //ImageType::Pointer randSub = LoadImage( files[0] ) ;
-    //imgTotal = randSub ;
-
-    //for (int i = 0; i < 21; i++ ) {
-//	if (i != r ) {
-    //	    std::string outFile = "./registrations/AR-" + std::string( argv[1] ).substr( 8, 2 ) + ".nii.gz" ;
-	    //t[i] = std::thread(affReg, randSub, files[i], outFile ) ;
-//	    ImageType::Pointer afr = affineRegistration( fixedImage, "./itk-images/" + argv[1], outFile ) ;
-	    
-// 	}
-//    }
-/*
-    for (int i=0; i<21; i++ ) {
-	t[i].join()
-    }
-
-*/
+    f.close() ;
+/*    
     ImageType::Pointer finImage = averageImage( files ) ;
-
-//    std::cout << multi->GetConstant() << std::endl ;
 
     typedef itk::ImageFileWriter < ImageType > WriterType ;
     WriterType::Pointer writer = WriterType::New() ;
     writer->SetFileName( argv[2] ) ;
     writer->SetInput( finImage ) ;
+    writer->Update() ;
+*/
+    AddType::Pointer adder2 = AddType::New() ;
+    ImageType::Pointer imgTotal = LoadImage( files[0] ) ;
+    // ImageType::Pointer imgTotal  = randSub ;
+    // std::thread t[21] ;
+
+    std::string regArray[21] ;
+    regArray[0] = files[0] ;
+
+    for (int i = 1; i < 21; i++ ) {
+	std::string outFile = "./registrations/AR-" + files[i].substr( 21, 2 ) + ".nii.gz" ;
+	//affineRegistration( files[0], files[i], outFile ) ;
+	std::cout << outFile << std::endl ;
+	regArray[i] = outFile ;
+    }
+
+    
+    imgTotal = averageImage( regArray ) ;
+
+    typedef itk::ImageFileWriter < ImageType > WriterType ;
+    WriterType::Pointer writer = WriterType::New() ;
+    writer->SetFileName( argv[2] ) ;
+    writer->SetInput( imgTotal ) ;
     writer->Update() ;
 
     return 0 ;

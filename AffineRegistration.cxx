@@ -74,7 +74,7 @@ protected:
   
 };
 
-ImageType::Pointer affineRegistration(std::string inFixed, std::string inMoving, std::string outImage )
+void affineRegistration(std::string inFixed, std::string inMoving, std::string outImage )
 {
   // Verify command line arguments
 
@@ -87,10 +87,12 @@ ImageType::Pointer affineRegistration(std::string inFixed, std::string inMoving,
   ImageType::Pointer movingImage = reader->GetOutput() ;
 
   // Same for the fixed image
+  
   readerType::Pointer reader2 = readerType::New() ;
   reader2->SetFileName ( inFixed ) ;
   reader2->Update() ;
   ImageType::Pointer fixedImage = reader2->GetOutput() ;
+
 
   // Register images
   // Set up typedefs
@@ -159,5 +161,5 @@ ImageType::Pointer affineRegistration(std::string inFixed, std::string inMoving,
   writer->Update() ;
 
   // Done.
-  return filter->GetOutput() ;
+  return ;
 }
