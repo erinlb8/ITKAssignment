@@ -4,6 +4,7 @@
 #include <sys/types.h>
 #include <dirent.h>
 #include <vector>
+#include <pthread.h>
 #include "itkImage.h"
 #include "itkImageFileReader.h"
 #include "itkAddImageFilter.h"
@@ -13,6 +14,7 @@
 
 
 // Set up types
+// If using threads, change to be void * 
 void affineRegistration( std::string, std::string, std::string ) ;
 int deformableRegistration( std::string, std::string, std::string ) ;
 
@@ -25,6 +27,15 @@ typedef itk::ImageFileWriter < ImageType > WriterType ;
 
 using namespace std ;
 
+
+/*
+struct thread_data {
+	int thread_id ;
+	string fixed ;
+	string moving ;
+	string output ;
+}
+*/
 ImageType::Pointer LoadImage ( string inputFile ) {    
     ReaderType::Pointer reader = ReaderType::New() ;
     reader->SetFileName( inputFile ) ;
@@ -82,9 +93,6 @@ int main ( int argc, char * argv[] )
 	files[j] = "./itk-images/" + files[j] ;	
     }
 
-
-
-
     string regArray[ files.size() ] ;
     string defArray[ files.size() ] ;
     regArray[0] = files[0] ;
@@ -97,33 +105,34 @@ int main ( int argc, char * argv[] )
 	cout << defArray[i] << endl ;
     }
 
-//    if ( strcmp( argv[3], "1" ) == 0 ) {
+    if ( strcmp( argv[1], "1" ) == 0 ) {
         cout << "Method 1" << endl ;
 	averageImage( files, "initialAverage.nii.gz" ) ;
-/*    } 
-    else if ( strcmp( argv[3], "2" ) == 0 ) {
+    } 
+    else if ( strcmp( argv[1], "2" ) == 0 ) {
 	cout << "Method 2" << endl ;
+	// pthread_t threads[21] ;
+	// struct thread_data td[21] ;
 	for (int i = 1; i < 21; i++ ) {
+	    // td[i].thread_id = i ;
+	    // td[i].fixed = files[0] ;
+	    // td[i].moving = files[i] ;
+	    // td[i].output = regArray[i] ;
+	    // pthread_create( &threads[i], NULL, affineRegistration, (void *)&td[i] ) ;
 	    affineRegistration( files[0], files[i], regArray[i] ) ;
 	    cout << regArray[i] << endl ;
 	}
-    }
-    else if ( strcmp( argv[3], "3" ) == 0 ) {
-	cout << "Method 3" << endl ;
 	averageImage( regArray, "affineAverage.nii.gz" ) ;
     }
-    else if ( strcmp( argv[3], "4" ) == 0 ) {
+    else if ( strcmp( argv[1], "3" ) == 0 ) {
 	cout << "Method 4" << endl ;
         for (int i = 0; i < 21 ; i++ ) {
 	    deformableRegistration( "affineAverage.nii.gz", regArray[0], defArray[0] ) ; 
 	    cout << defArray[i] << endl ;
 	}
-    } 
-    else if ( strcmp( argv[3], "5" ) == 0 ) {
-	cout << "Method 5" << endl ;
 	averageImage( defArray, "deformableAverage.nii.gz" ) ;
     }
-*/
+    // pthread_exit( NULL ) ;
     return 0 ;
 }
 
