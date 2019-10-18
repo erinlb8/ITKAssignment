@@ -93,16 +93,14 @@ int main ( int argc, char * argv[] )
 	files[j] = "./itk-images/" + files[j] ;	
     }
 
-    string regArray[ files.size() ] ;
-    string defArray[ files.size() ] ;
-    regArray[0] = files[0] ;
-    defArray[0] = "./registrations/DR-" + files[0].substr( 21, 2 ) + ".nii.gz" ;
+    vector < string > regArray ;
+    vector < string > defArray ;
+    regArray.push_back( files[0] ) ;
+    defArray.push_back ( "./registrations/DR-" + files[0].substr( 21, 2 ) + ".nii.gz" ) ;
 
     for ( int i = 1 ; i < files.size() ; i++ ) {
- 	regArray[i] = "./registrations/AR-" + files[i].substr( 21, 2 ) + ".nii.gz" ;
-        defArray[i] = "./registrations/DR-" + files[i].substr( 21, 2 ) + ".nii.gz" ;
-	cout << regArray[i] << endl ;
-	cout << defArray[i] << endl ;
+ 	regArray.push_back ( "./registrations/AR-" + files[i].substr( 21, 2 ) + ".nii.gz" ) ;
+        defArray.push_back ( "./registrations/DR-" + files[i].substr( 21, 2 ) + ".nii.gz" ) ;
     }
 
     if ( strcmp( argv[1], "1" ) == 0 ) {
@@ -113,7 +111,7 @@ int main ( int argc, char * argv[] )
 	cout << "Method 2" << endl ;
 	// pthread_t threads[21] ;
 	// struct thread_data td[21] ;
-	for (int i = 1; i < 21; i++ ) {
+	for (int i = 1; i < files.size() ; i++ ) {
 	    // td[i].thread_id = i ;
 	    // td[i].fixed = files[0] ;
 	    // td[i].moving = files[i] ;
