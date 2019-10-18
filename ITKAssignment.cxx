@@ -67,7 +67,7 @@ int main ( int argc, char * argv[] )
     }
 
     int method = atoi(argv[1]) ;
-    //int index = atoi(argv[2]) ;
+    int ind = atoi(argv[2]) ;
 
     time_t current_time ;
     current_time = time( NULL ) ;
@@ -123,13 +123,15 @@ int main ( int argc, char * argv[] )
     }
     else if ( method == 3 ) {
 	cout << "Method 3" << endl ;
-        for (int i = 0; i < 21 ; i++ ) {
-	    deformableRegistration( "affineAverage.nii.gz", regArray[i], defArray[i] ) ; 
-	}
+        //for (int i = 0; i < 21 ; i++ ) {
+	deformableRegistration( "affineAverage.nii.gz", regArray[ind], defArray[ind] ) ; 
+	//}
+	current_time = time( NULL );
+	cout << "Transform " << ind << " Completed" << current_time << endl ;
+    }
+    else if ( strcmp( argv[1], "4" ) == 0 ) {
 	averageImage( defArray, "deformableAverage1.nii.gz" ) ;
     }
-//    else if ( strcmp( argv[1], "4" ) == 0 ) {
-//    }
 
     current_time = time( NULL ) ;
     cout << current_time << endl ;
