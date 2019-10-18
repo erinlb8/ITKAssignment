@@ -8,9 +8,13 @@
 #include "itkLinearInterpolateImageFunction.h"
 #include "itkRegularStepGradientDescentOptimizer.h"
 #include <string>
+#include <mutex>
+#include <thread>
 
 const unsigned int nDims = 3 ;
+//std::mutex fixed_image_mutex ;
 typedef itk::Image< float, nDims > ImageType;
+
 
 class OptimizationObserver : public itk::Command {
 
@@ -73,10 +77,21 @@ protected:
   
 };
 
-void affineRegistration(std::string inFixed, std::string inMoving, std::string outImage )
-{
-  // Verify command line arguments
+struct thread_data {
+  int thread_id ;
+  ImageType::Pointer fixed ;
+  std::string moving ;
+  std::string output ;
+} ;
 
+void affineRegistration( int id, std::string inFixed, std::string inMoving, std::string outImage )
+{
+  //struct thread_data * args = ( struct thread_data * ) thread_args ; 
+  // Verify command line arguments
+  //ImageType::Pointer fixedImage = args->fixed  ;
+  //std::string inMoving = args->moving  ;
+  //std::string outImage = args->output  ;
+  //int id = args->thread_id ;
   // Setup types
   // Create and setup a reader for moving image
   typedef itk::ImageFileReader< ImageType >  readerType;
@@ -86,11 +101,12 @@ void affineRegistration(std::string inFixed, std::string inMoving, std::string o
   ImageType::Pointer movingImage = reader->GetOutput() ;
 
   // Same for the fixed image
+  //fixed_image_mutex.lock() ;
   readerType::Pointer reader2 = readerType::New() ;
   reader2->SetFileName ( inFixed ) ;
   reader2->Update() ;
   ImageType::Pointer fixedImage = reader2->GetOutput() ;
-
+  //fixed_image_mutex.unlock() ;
   // Register images
   // Set up typedefs
   typedef itk::AffineTransform < double, 3 > AffineType ;
@@ -126,6 +142,7 @@ void affineRegistration(std::string inFixed, std::string inMoving, std::string o
   regWrapper->SetFixedImageRegion( fixedImage->GetLargestPossibleRegion() );
   regWrapper->SetNumberOfLevels ( 3 ) ; 
   // Run the registration
+ 
   try 
     {  
       regWrapper->Update() ;
@@ -135,7 +152,7 @@ void affineRegistration(std::string inFixed, std::string inMoving, std::string o
       std::cerr << "Error in registration" << std::endl;  
       std::cerr << excp << std::endl; 
     }
-  
+ 
   // Update the transform
   affine->SetParameters( regWrapper->GetLastTransformParameters() ) ;
 

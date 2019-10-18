@@ -9,16 +9,27 @@
 #include "itkLinearInterpolateImageFunction.h"
 #include "itkResampleImageFilter.h"
 
+#include <pthread.h>
 #include <string>
 
 // Set up types
 const unsigned int nDims = 3 ;
 typedef itk::Image< double, nDims > ImageType ;
 
+struct thread_data {
+  int thread_id ;
+  std::string fixed ;
+  std::string moving ;
+  std::string output ;
+} ;
 
+void * deformableRegistration( void * thread_args ) // std::string inFixed, std::string inMoving, std::string outImage ) {
+{
+  struct thread_data * args = (struct thread_data *) thread_args ;
+  std::string inFixed = args->fixed ;
+  std::string inMoving = args->moving ;
+  std::string outImage = args->output ;
 
-int deformableRegistration( std::string inFixed, std::string inMoving, std::string outImage ) {
-  
   typedef itk::ImageFileReader < ImageType > ReaderType ;
   ReaderType::Pointer reader1 = ReaderType::New() ;
   reader1->SetFileName( inFixed ) ;
@@ -100,5 +111,5 @@ int deformableRegistration( std::string inFixed, std::string inMoving, std::stri
   writer->SetInput( resample->GetOutput() ) ;
   writer->Update() ;
 
-  return 0;
+  pthread_exit( NULL );
 }

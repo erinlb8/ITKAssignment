@@ -5,6 +5,7 @@
 #include <dirent.h>
 #include <vector>
 #include <pthread.h>
+#include <thread>
 #include "itkImage.h"
 #include "itkImageFileReader.h"
 #include "itkAddImageFilter.h"
@@ -15,8 +16,8 @@
 
 // Set up types
 // If using threads, change to be void * 
-void affineRegistration( std::string, std::string, std::string ) ;
-int deformableRegistration( std::string, std::string, std::string ) ;
+void affineRegistration( int, std::string, std::string, std::string ) ;
+void * deformableRegistration( void * ) ; //std::string, std::string, std::string ) ;
 
 const unsigned int nDims = 3 ;
 typedef itk::Image < double, nDims > ImageType ;
@@ -27,15 +28,13 @@ typedef itk::ImageFileWriter < ImageType > WriterType ;
 
 using namespace std ;
 
-
-/*
 struct thread_data {
 	int thread_id ;
-	string fixed ;
+	ImageType::Pointer fixed ;
 	string moving ;
 	string output ;
-}
-*/
+} ;
+
 ImageType::Pointer LoadImage ( string inputFile ) {    
     ReaderType::Pointer reader = ReaderType::New() ;
     reader->SetFileName( inputFile ) ;
@@ -78,6 +77,10 @@ int main ( int argc, char * argv[] )
 	return -1 ;
     }
 
+    time_t current_time ;
+    current_time = time( NULL ) ;
+    cout << current_time << endl ;
+
     vector < string > files ;
     DIR* dirp = opendir( "./itk-images/" ) ;
     struct dirent * dp ;
@@ -87,41 +90,58 @@ int main ( int argc, char * argv[] )
 	}
     }
     closedir( dirp ) ;
-    
+
+    string dir1 = "./itk-images/" ;
     for ( int j = 0 ; j < files.size() ; j++ ) {
-	cout << files[j] << endl ;
-	files[j] = "./itk-images/" + files[j] ;	
+	files[j] = dir1 + files[j] ;	
     }
 
+    string dir2 = "./registrations/AR-" ;
+    string dir3 = "./registrations/DR-" ;
+    string ft = ".nii.gz" ;
     vector < string > regArray ;
     vector < string > defArray ;
     regArray.push_back( files[0] ) ;
-    defArray.push_back ( "./registrations/DR-" + files[0].substr( 21, 2 ) + ".nii.gz" ) ;
+    
+    defArray.push_back ( dir3 + files[0].substr( 21, 2 ) + ft ) ;
+    cout << regArray[0] << endl ;
 
     for ( int i = 1 ; i < files.size() ; i++ ) {
- 	regArray.push_back ( "./registrations/AR-" + files[i].substr( 21, 2 ) + ".nii.gz" ) ;
-        defArray.push_back ( "./registrations/DR-" + files[i].substr( 21, 2 ) + ".nii.gz" ) ;
+ 	regArray.push_back ( dir2 + files[i].substr( 21, 2 ) + ft ) ;
+        defArray.push_back ( dir3 + files[i].substr( 21, 2 ) + ft ) ;
     }
 
     if ( strcmp( argv[1], "1" ) == 0 ) {
-        cout << "Method 1" << endl ;
+	cout << "Method 1" << endl ;
 	averageImage( files, "initialAverage.nii.gz" ) ;
     } 
     else if ( strcmp( argv[1], "2" ) == 0 ) {
+        ImageType::Pointer fixedImage = ImageType::New() ;
+	ReaderType::Pointer reader = ReaderType::New() ;
+	reader->SetFileName( files[0] ) ;
+	reader->Update() ;
+        fixedImage = reader->GetOutput() ;
+
 	cout << "Method 2" << endl ;
-	// pthread_t threads[21] ;
-	// struct thread_data td[21] ;
+	//vector < thread > thrd ;//[21] ;
+	//struct thread_data td[20] ;
 	for (int i = 1; i < files.size() ; i++ ) {
-	    // td[i].thread_id = i ;
-	    // td[i].fixed = files[0] ;
-	    // td[i].moving = files[i] ;
-	    // td[i].output = regArray[i] ;
-	    // pthread_create( &threads[i], NULL, affineRegistration, (void *)&td[i] ) ;
-	    affineRegistration( files[0], files[i], regArray[i] ) ;
-	    cout << regArray[i] << endl ;
+	    //td[i-1].thread_id = i ;
+	    //td[i-1].fixed = fixedImage ;//files[0] ;
+	    //td[i-1].moving = files[i] ;
+	    //td[i-1].output = regArray[i] ;
+	    //thrd.push_back( thread( affineRegistration, i, files[0], files[i], regArray[i] ) ) ;
+	    affineRegistration( i, files[0], files[i], regArray[i] ) ;
+	    cout << "Thread " << i << " started" << endl ;
 	}
+	//for ( int i = 0 ; i < thrd.size() ; i++ ) {
+	//    thrd[i].join() ;
+	//    cout << "Thread " << i << " joined" << endl ;
+	//}
 	averageImage( regArray, "affineAverage.nii.gz" ) ;
-    }
+	
+     }
+/*
     else if ( strcmp( argv[1], "3" ) == 0 ) {
 	cout << "Method 4" << endl ;
         for (int i = 0; i < 21 ; i++ ) {
@@ -130,7 +150,10 @@ int main ( int argc, char * argv[] )
 	}
 	averageImage( defArray, "deformableAverage.nii.gz" ) ;
     }
-    // pthread_exit( NULL ) ;
+*/
+    current_time = time( NULL ) ;
+    cout << current_time << endl ;
+
     return 0 ;
 }
 
