@@ -21,11 +21,11 @@ typedef itk::ImageFileReader < ImageType > ReaderType ;
 typedef itk::MultiplyImageFilter < ImageType, ImageType, ImageType > MultiplyType ;
 typedef itk::AddImageFilter < ImageType, ImageType, ImageType > AddType ;
 typedef itk::ImageFileWriter < ImageType > WriterType ;  
+ReaderType::Pointer reader = ReaderType::New() ;
 
 using namespace std ;
 
 ImageType::Pointer LoadImage ( string inputFile ) {    
-    ReaderType::Pointer reader = ReaderType::New() ;
     reader->SetFileName( inputFile ) ;
     reader->Update() ;
     return reader->GetOutput() ;
@@ -40,7 +40,7 @@ int averageImage( vector < string > files, string outFile ) {
 	adder->SetInput2( LoadImage( files[i] ) );
 	adder->Update() ;
 	imgTotal = adder->GetOutput() ;
-	cout << files[i] << endl ;
+	// cout << files[i] << endl ;
     }
 
     MultiplyType::Pointer multi = MultiplyType::New() ;
@@ -67,7 +67,7 @@ int main ( int argc, char * argv[] )
     }
 
     int method = atoi(argv[1]) ;
-    int index = atoi(argv[2]) ;
+    //int index = atoi(argv[2]) ;
 
     time_t current_time ;
     current_time = time( NULL ) ;
@@ -116,21 +116,20 @@ int main ( int argc, char * argv[] )
 	cout << "Method 2" << endl ;
 	for (int i = 1; i < files.size() ; i++ ) {
 	    affineRegistration( i, files[0], files[i], regArray[i] ) ;
-	    cout << "Thread " << i << " started" << endl ;
+	    // cout << "Thread " << i << " started" << endl ;
 	}
 
 	averageImage( regArray, "affineAverage.nii.gz" ) ;	
     }
     else if ( method == 3 ) {
 	cout << "Method 3" << endl ;
-        //for (int i = 0; i < 21 ; i++ ) {
-	    deformableRegistration( "affineAverage.nii.gz", regArray[index], defArray[index] ) ; 
-	    cout << regArray[index] << endl ;
-	//}
+        for (int i = 0; i < 21 ; i++ ) {
+	    deformableRegistration( "affineAverage.nii.gz", regArray[i], defArray[i] ) ; 
+	}
+	averageImage( defArray, "deformableAverage1.nii.gz" ) ;
     }
-    else if ( strcmp( argv[1], "4" ) == 0 ) {
-	averageImage( defArray, "deformableAverage.nii.gz" ) ;
-    }
+//    else if ( strcmp( argv[1], "4" ) == 0 ) {
+//    }
 
     current_time = time( NULL ) ;
     cout << current_time << endl ;
