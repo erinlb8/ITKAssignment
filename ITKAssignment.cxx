@@ -66,6 +66,9 @@ int main ( int argc, char * argv[] )
 	return -1 ;
     }
 
+    int method = atoi(argv[1]) ;
+    int index = atoi(argv[2]) ;
+
     time_t current_time ;
     current_time = time( NULL ) ;
     cout << current_time << endl ;
@@ -93,8 +96,7 @@ int main ( int argc, char * argv[] )
     regArray.push_back( files[0] ) ;
     
     defArray.push_back ( dir3 + files[0].substr( 21, 2 ) + ft ) ;
-    cout << regArray[0] << endl ;
-
+    
     for ( int i = 1 ; i < files.size() ; i++ ) {
  	regArray.push_back ( dir2 + files[i].substr( 21, 2 ) + ft ) ;
         defArray.push_back ( dir3 + files[i].substr( 21, 2 ) + ft ) ;
@@ -118,17 +120,18 @@ int main ( int argc, char * argv[] )
 	}
 
 	averageImage( regArray, "affineAverage.nii.gz" ) ;	
-     }
-/*
-    else if ( strcmp( argv[1], "3" ) == 0 ) {
-	cout << "Method 4" << endl ;
-        for (int i = 0; i < 21 ; i++ ) {
-	    deformableRegistration( "affineAverage.nii.gz", regArray[0], defArray[0] ) ; 
-	    cout << defArray[i] << endl ;
-	}
+    }
+    else if ( method == 3 ) {
+	cout << "Method 3" << endl ;
+        //for (int i = 0; i < 21 ; i++ ) {
+	    deformableRegistration( "affineAverage.nii.gz", regArray[index], defArray[index] ) ; 
+	    cout << regArray[index] << endl ;
+	//}
+    }
+    else if ( strcmp( argv[1], "4" ) == 0 ) {
 	averageImage( defArray, "deformableAverage.nii.gz" ) ;
     }
-*/
+
     current_time = time( NULL ) ;
     cout << current_time << endl ;
 
