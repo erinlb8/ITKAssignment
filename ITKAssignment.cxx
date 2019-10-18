@@ -1,11 +1,7 @@
-#include <iostream>
-#include <fstream>
 #include <string>
 #include <sys/types.h>
 #include <dirent.h>
 #include <vector>
-#include <pthread.h>
-#include <thread>
 #include "itkImage.h"
 #include "itkImageFileReader.h"
 #include "itkAddImageFilter.h"
@@ -17,7 +13,7 @@
 // Set up types
 // If using threads, change to be void * 
 void affineRegistration( int, std::string, std::string, std::string ) ;
-void * deformableRegistration( void * ) ; //std::string, std::string, std::string ) ;
+void deformableRegistration( std::string, std::string, std::string ) ;
 
 const unsigned int nDims = 3 ;
 typedef itk::Image < double, nDims > ImageType ;
@@ -27,13 +23,6 @@ typedef itk::AddImageFilter < ImageType, ImageType, ImageType > AddType ;
 typedef itk::ImageFileWriter < ImageType > WriterType ;  
 
 using namespace std ;
-
-struct thread_data {
-	int thread_id ;
-	ImageType::Pointer fixed ;
-	string moving ;
-	string output ;
-} ;
 
 ImageType::Pointer LoadImage ( string inputFile ) {    
     ReaderType::Pointer reader = ReaderType::New() ;
@@ -123,23 +112,12 @@ int main ( int argc, char * argv[] )
         fixedImage = reader->GetOutput() ;
 
 	cout << "Method 2" << endl ;
-	//vector < thread > thrd ;//[21] ;
-	//struct thread_data td[20] ;
 	for (int i = 1; i < files.size() ; i++ ) {
-	    //td[i-1].thread_id = i ;
-	    //td[i-1].fixed = fixedImage ;//files[0] ;
-	    //td[i-1].moving = files[i] ;
-	    //td[i-1].output = regArray[i] ;
-	    //thrd.push_back( thread( affineRegistration, i, files[0], files[i], regArray[i] ) ) ;
 	    affineRegistration( i, files[0], files[i], regArray[i] ) ;
 	    cout << "Thread " << i << " started" << endl ;
 	}
-	//for ( int i = 0 ; i < thrd.size() ; i++ ) {
-	//    thrd[i].join() ;
-	//    cout << "Thread " << i << " joined" << endl ;
-	//}
-	averageImage( regArray, "affineAverage.nii.gz" ) ;
-	
+
+	averageImage( regArray, "affineAverage.nii.gz" ) ;	
      }
 /*
     else if ( strcmp( argv[1], "3" ) == 0 ) {

@@ -16,19 +16,8 @@
 const unsigned int nDims = 3 ;
 typedef itk::Image< double, nDims > ImageType ;
 
-struct thread_data {
-  int thread_id ;
-  std::string fixed ;
-  std::string moving ;
-  std::string output ;
-} ;
-
-void * deformableRegistration( void * thread_args ) // std::string inFixed, std::string inMoving, std::string outImage ) {
+void deformableRegistration( std::string inFixed, std::string inMoving, std::string outImage )
 {
-  struct thread_data * args = (struct thread_data *) thread_args ;
-  std::string inFixed = args->fixed ;
-  std::string inMoving = args->moving ;
-  std::string outImage = args->output ;
 
   typedef itk::ImageFileReader < ImageType > ReaderType ;
   ReaderType::Pointer reader1 = ReaderType::New() ;
@@ -69,7 +58,6 @@ void * deformableRegistration( void * thread_args ) // std::string inFixed, std:
   registration->SetOptimizer( rsgd ) ;
   registration->SetInterpolator( linear ) ;
   registration->SetTransform( transform ) ;
-  // registration->InPlaceOn() ;
 
   transform->SetTransformDomainOrigin( fixed->GetOrigin() ) ;
   transform->SetTransformDomainPhysicalDimensions( fixedPD ) ;
@@ -111,5 +99,5 @@ void * deformableRegistration( void * thread_args ) // std::string inFixed, std:
   writer->SetInput( resample->GetOutput() ) ;
   writer->Update() ;
 
-  pthread_exit( NULL );
+  return ;
 }
