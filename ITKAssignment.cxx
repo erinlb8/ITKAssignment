@@ -21,11 +21,10 @@ typedef itk::ImageFileReader < ImageType > ReaderType ;
 typedef itk::MultiplyImageFilter < ImageType, ImageType, ImageType > MultiplyType ;
 typedef itk::AddImageFilter < ImageType, ImageType, ImageType > AddType ;
 typedef itk::ImageFileWriter < ImageType > WriterType ;  
-ReaderType::Pointer reader = ReaderType::New() ;
-
 using namespace std ;
 
 ImageType::Pointer LoadImage ( string inputFile ) {    
+    ReaderType::Pointer reader = ReaderType::New() ;
     reader->SetFileName( inputFile ) ;
     reader->Update() ;
     return reader->GetOutput() ;
@@ -122,15 +121,12 @@ int main ( int argc, char * argv[] )
 	averageImage( regArray, "affineAverage.nii.gz" ) ;	
     }
     else if ( method == 3 ) {
-	// cout << "Method 3" << endl ;
-        //for (int i = 0; i < 21 ; i++ ) {
-	deformableRegistration( "affineAverage.nii.gz", defArray[ind], defArray[ind] ) ; 
-	//}
+	deformableRegistration( "affineAverage.nii.gz", regArray[ind], regArray[ind] ) ;
 	current_time = time( NULL );
 	cout << "Transform " << ind << " Completed " << current_time << endl ;
     }
     else if ( strcmp( argv[1], "4" ) == 0 ) {
-	averageImage( defArray, "./atlas-images/deformableAverage" + string( argv[2] ) + ".nii.gz" ) ;
+	averageImage( regArray, "./atlas-images/deformableAverage" + string( argv[2] ) + ".nii.gz" ) ;
     }
 
     current_time = time( NULL ) ;

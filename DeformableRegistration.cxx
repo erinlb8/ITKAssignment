@@ -73,7 +73,7 @@ void deformableRegistration( std::string inFixed, std::string inMoving, std::str
 
   rsgd->SetMaximumStepLength( 0.25 ) ;
   rsgd->SetMinimumStepLength( 0.0625 ) ;
-  rsgd->SetNumberOfIterations( 1 ) ;
+  rsgd->SetNumberOfIterations( 10 ) ;
 
   try { 
     // std::cout << transform->GetNumberOfParameters() << std::endl ;
