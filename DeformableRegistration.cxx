@@ -76,7 +76,7 @@ void deformableRegistration( std::string inFixed, std::string inMoving, std::str
   rsgd->SetNumberOfIterations( 1 ) ;
 
   try { 
-    std::cout << transform->GetNumberOfParameters() << std::endl ;
+    // std::cout << transform->GetNumberOfParameters() << std::endl ;
     registration->Update() ;
   } catch (itk::ExceptionObject & e ) {
     std::cerr << e << std::endl ;

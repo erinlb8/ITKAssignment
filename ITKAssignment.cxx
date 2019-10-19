@@ -122,15 +122,15 @@ int main ( int argc, char * argv[] )
 	averageImage( regArray, "affineAverage.nii.gz" ) ;	
     }
     else if ( method == 3 ) {
-	cout << "Method 3" << endl ;
+	// cout << "Method 3" << endl ;
         //for (int i = 0; i < 21 ; i++ ) {
-	deformableRegistration( "affineAverage.nii.gz", regArray[ind], defArray[ind] ) ; 
+	deformableRegistration( "affineAverage.nii.gz", defArray[ind], defArray[ind] ) ; 
 	//}
 	current_time = time( NULL );
-	cout << "Transform " << ind << " Completed" << current_time << endl ;
+	cout << "Transform " << ind << " Completed " << current_time << endl ;
     }
     else if ( strcmp( argv[1], "4" ) == 0 ) {
-	averageImage( defArray, "deformableAverage1.nii.gz" ) ;
+	averageImage( defArray, "./atlas-images/deformableAverage" + string( argv[2] ) + ".nii.gz" ) ;
     }
 
     current_time = time( NULL ) ;
