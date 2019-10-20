@@ -92,13 +92,13 @@ int main ( int argc, char * argv[] )
     string ft = ".nii.gz" ;
     vector < string > regArray ;
     vector < string > defArray ;
-    regArray.push_back( files[0] ) ;
+//    regArray.push_back( files[0] ) ;
     
-    defArray.push_back ( dir3 + files[0].substr( 21, 2 ) + ft ) ;
+//    defArray.push_back ( dir3 + files[0].substr( 21, 2 ) + ft ) ;
     
-    for ( int i = 1 ; i < files.size() ; i++ ) {
+    for ( int i = 0 ; i < files.size() ; i++ ) {
  	regArray.push_back ( dir2 + files[i].substr( 21, 2 ) + ft ) ;
-        defArray.push_back ( dir3 + files[i].substr( 21, 2 ) + ft ) ;
+//        defArray.push_back ( dir3 + files[i].substr( 21, 2 ) + ft ) ;
     }
 
     if ( strcmp( argv[1], "1" ) == 0 ) {
@@ -113,7 +113,7 @@ int main ( int argc, char * argv[] )
         fixedImage = reader->GetOutput() ;
 
 	cout << "Method 2" << endl ;
-	for (int i = 1; i < files.size() ; i++ ) {
+	for (int i = 0; i < files.size() ; i++ ) {
 	    affineRegistration( i, files[0], files[i], regArray[i] ) ;
 	    // cout << "Thread " << i << " started" << endl ;
 	}
