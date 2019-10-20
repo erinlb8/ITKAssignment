@@ -4,7 +4,7 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --time=00:20:00
-#SBATCH --mem=32G
+#SBATCH --mem=16G
 #SBATCH --output=./log_files/slde_%a.log
 #SBATCH --array=0-20
 

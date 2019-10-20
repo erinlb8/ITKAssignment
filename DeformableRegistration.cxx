@@ -71,9 +71,9 @@ void deformableRegistration( std::string inFixed, std::string inMoving, std::str
   registration->SetInitialTransformParameters( transform->GetParameters() ) ;
   registration->SetFixedImageRegion( fixed->GetLargestPossibleRegion() ) ;
 
-  rsgd->SetMaximumStepLength( 0.25 ) ;
-  rsgd->SetMinimumStepLength( 0.0625 ) ;
-  rsgd->SetNumberOfIterations( 10 ) ;
+  rsgd->SetMaximumStepLength( 0.5 ) ;
+  rsgd->SetMinimumStepLength( 0.125 ) ;
+  rsgd->SetNumberOfIterations( 1 ) ;
 
   try { 
     // std::cout << transform->GetNumberOfParameters() << std::endl ;
