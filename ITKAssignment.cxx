@@ -1,3 +1,6 @@
+// Name: Erin Bratu
+// Resources Used: In-class code and ITK Documentation
+
 #include <string>
 #include <sys/types.h>
 #include <dirent.h>
