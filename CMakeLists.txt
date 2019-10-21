@@ -8,3 +8,4 @@ include (${ITK_USE_FILE})
 add_executable (ITKAssignment ITKAssignment.cxx AffineRegistration.cxx DeformableRegistration.cxx)
 
 target_link_libraries (ITKAssignment ${ITK_LIBRARIES})
+
