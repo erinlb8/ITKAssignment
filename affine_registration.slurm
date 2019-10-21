@@ -5,7 +5,7 @@
 #SBATCH --ntasks=1
 #SBATCH --time=00:30:00
 #SBATCH --mem=8G
-#SBATCH --output=slaffine.log
+#SBATCH --output=./log_files/slaffine.log
 #SBATCH --job-name=affine_registration
 
 module purge

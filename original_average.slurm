@@ -5,7 +5,7 @@
 #SBATCH --ntasks=1
 #SBATCH --time=00:05:00
 #SBATCH --mem=2G
-#SBATCH --output=s1_job_slurm.txt
+#SBATCH --output=./log_files/sloriginal.log
 
 module purge
 module restore cs8395-modules
