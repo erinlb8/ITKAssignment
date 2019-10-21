@@ -1,3 +1,5 @@
+// Resources Used: In-class code and ITK Documentation
+
 #include "itkImage.h"
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
